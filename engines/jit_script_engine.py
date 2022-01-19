@@ -22,6 +22,7 @@ def train_loop(args, model, optim_func, input_func, grad_func=None) :
     with torch.jit.fuser('fuser2') :
         for step,batch in enumerate(batches) :
             if step == args.warmup_steps :
+                torch.cuda.profiler.start()
                 start_evt.record()
 
             with torch.cuda.amp.autocast(enabled=args.amp) :

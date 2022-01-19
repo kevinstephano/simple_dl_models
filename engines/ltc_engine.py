@@ -36,6 +36,7 @@ def train_loop(args, model, optim_func, input_func, grad_func=None) :
             ltm.mark_step()
 
             if step == args.warmup_steps :
+                torch.cuda.profiler.start()
                 start_evt.record()
     
     stop_evt.record()
