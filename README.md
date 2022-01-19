@@ -47,6 +47,11 @@ Engines:
 * Feed Forward Block with no optimizer: `xformer_feed_fwd.py`
 * One Encoder Layer with no optimizer: `xformer_1_layer.py`
 ### Bert Models
+#### Fixed Batch Size Models
 * Full Bert Model (bert-large) with APEX Lamb Optimizer: `bert_model.py`
 * Full Bert Model (bert-large) with Native AdamW Optimizer: `bert_model_adam_opt.py`
 * Bert Model with 1 Layer (bert-large sized) with no optimizer: `bert_model_1_layer_no_opt.py`
+#### Dynamic Batch Size Models (sequence length per batch varies)
+* Full Bert Model (bert-large) with APEX Lamb Optimizer: `dynamic_bert_model.py`
+* Full Bert Model (bert-large) with Native AdamW Optimizer: `dynamic_bert_model_adam_opt.py`
+
