@@ -1,9 +1,9 @@
 # Models and Parts of Models to Test the Pytorch Fusion Frontends
 
-## Usage
+## Basic Usage
 
 ```
-python [model file] [--jit_script] [--ltc] [--aot_autograd] 
+python [model file] [engine: --jit_script|--ltc|--aot_autograd] 
 ```
 
 If you include no options with the model file, only eager mode will be timed.
@@ -13,6 +13,18 @@ If you include no options with the model file, only eager mode will be timed.
 ```
 $ python simple_model.py --jit_script
 >>> Eager-Time(us): 411.493 JIT_Script-Time(us): 368.355 JIT_Script-Speedup: 1.12
+```
+
+## Mixed Precision Usage
+_Defaults to FP32 model and input data._
+### AMP Usage
+Model parameters remain in FP32 and input data is in FP16
+```
+python [model file] [engine: --jit_script|--ltc|--aot_autograd] --amp
+```
+### Mixed Precsion with Model in FP16 and GradScaler (Advanced Performace Usage)
+```
+python [model file] [engine: --jit_script|--ltc|--aot_autograd] --input_dtype=torch.float16 --model_dtype=torch.float16 --grad_scaler
 ```
 
 ## Options
