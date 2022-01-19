@@ -1,5 +1,8 @@
 import torch
 
+# Knob to enable JIT based autocast
+torch._C._jit_set_autocast_mode(True)
+
 def train_loop(args, model, optim_func, input_func, grad_func=None) :
     model.to(device=args.device)
     model.to(dtype=args.model_dtype)
