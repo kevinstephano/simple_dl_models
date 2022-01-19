@@ -8,26 +8,6 @@ from engines import runner
 import xformer_multihead_attn
 import xformer_feed_fwd
 
-# This is just going to set the gradients to None
-# such that gradient accumulation is not triggered.
-def optim_func(params) :
-    class DummyOptimizer :
-        def __init__(self, params) :
-            self.params = params
-
-        def step(self) :
-            pass
-
-        def zero_grad(self, set_to_none=False) :
-            for p in self.params :
-                if set_to_none :
-                    p.grad = None
-                else :
-                    if p.grad != None :
-                        p.grad.zero_()
-
-    return DummyOptimizer(params)
-
 def data_func(steps, dtype, device) :
     results = []
     for _ in range(steps) :
@@ -54,6 +34,8 @@ class BertLayer(nn.Module):
         intermediate_output = self.intermediate(attention_output)
         layer_output = self.output(intermediate_output, attention_output)
         return layer_output
+
+from components.dummy_optimizer import optim_func
 
 if __name__ == "__main__" :
     runner.run(sys.argv, BertLayer(1024, 4096, 16, 0.1), optim_func, data_func, grad_func) 
