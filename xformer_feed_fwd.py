@@ -31,7 +31,7 @@ def optim_func(params) :
 def data_func(steps, dtype, device) :
     results = []
     for _ in range(steps) :
-        data = torch.randn(128, 64, 1024, dtype=dtype, device=device, requires_grad=True)
+        data = torch.randn(128, 64, 1024, dtype=dtype, device=device)
         results.append([data])
     return results
 
@@ -41,12 +41,12 @@ def grad_func(steps, dtype, device) :
 class LinearActivation(nn.Module):
     r"""Fused Linear and activation Module.
     """
-    def __init__(self, in_features, out_features, bias=True):
+    def __init__(self, in_features, out_features, act=torch.nn.functional.gelu, bias=True):
         super(LinearActivation, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
         self.bias = None
-        self.act_fn = torch.nn.functional.gelu
+        self.act_fn = act
         self.weight = Parameter(torch.Tensor(out_features, in_features))
         if bias:
             self.bias = Parameter(torch.Tensor(out_features))

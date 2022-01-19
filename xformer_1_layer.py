@@ -31,8 +31,8 @@ def optim_func(params) :
 def data_func(steps, dtype, device) :
     results = []
     for _ in range(steps) :
-        data = torch.randn(128, 64, 1024, dtype=dtype, device=device, requires_grad=True)
-        mask = torch.randn(64, 1, 1, 128, dtype=dtype, device=device, requires_grad=False)
+        data = torch.randn(128, 64, 1024, dtype=dtype, device=device)
+        mask = torch.randn(64, 1, 1, 128, dtype=dtype, device=device)
         bool_mask = mask < 0.
         results.append([data, bool_mask])
     return results
@@ -40,9 +40,9 @@ def data_func(steps, dtype, device) :
 def grad_func(steps, dtype, device) :
     return [torch.randn(128, 64, 1024, dtype=dtype, device=device) for _ in range(steps)]
 
-class TestModule(nn.Module):
+class BertLayer(nn.Module):
     def __init__(self, hidden_size, intermediate_size, num_attention_heads, dropout_prob):
-        super(TestModule, self).__init__()
+        super(BertLayer, self).__init__()
         self.self = xformer_multihead_attn.BertSelfAttention(hidden_size, dropout_prob, num_attention_heads)
         self.self_output = xformer_multihead_attn.BertSelfOutput(hidden_size, dropout_prob)
         self.intermediate = xformer_feed_fwd.BertIntermediate(hidden_size, intermediate_size)
@@ -56,4 +56,4 @@ class TestModule(nn.Module):
         return layer_output
 
 if __name__ == "__main__" :
-    runner.run(sys.argv, TestModule(1024, 4096, 16, 0.1), optim_func, data_func, grad_func) 
+    runner.run(sys.argv, BertLayer(1024, 4096, 16, 0.1), optim_func, data_func, grad_func) 

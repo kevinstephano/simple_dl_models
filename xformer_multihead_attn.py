@@ -29,8 +29,8 @@ def optim_func(params) :
 def data_func(steps, dtype, device) :
     results = []
     for _ in range(steps) :
-        data = torch.randn(128, 64, 1024, dtype=dtype, device=device, requires_grad=True)
-        mask = torch.randn(64, 1, 1, 128, dtype=dtype, device=device, requires_grad=False)
+        data = torch.randn(128, 64, 1024, dtype=dtype, device=device)
+        mask = torch.randn(64, 1, 1, 128, dtype=dtype, device=device)
         bool_mask = mask < 0.
         results.append([data, bool_mask])
     return results
