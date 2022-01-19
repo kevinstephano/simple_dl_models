@@ -6,7 +6,7 @@ from engines import runner
 def optim_func(params) :
     return torch.optim.SGD(params, lr=0.01)
 
-def data_func(steps, dtype, device) :
+def input_func(steps, dtype, device) :
     return [[torch.randn(128, 1024, dtype=dtype, device=device)] for _ in range(steps)]   
 
 class TestModule(torch.nn.Module) :
@@ -22,4 +22,4 @@ class TestModule(torch.nn.Module) :
         return out3.sum()
 
 if __name__ == "__main__" :
-    runner.run(sys.argv, TestModule(), optim_func, data_func, None) 
+    runner.run(sys.argv, TestModule(), optim_func, input_func, None) 

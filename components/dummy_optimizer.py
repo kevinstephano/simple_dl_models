@@ -6,8 +6,12 @@ def optim_func(params) :
     class DummyOptimizer :
         def __init__(self, params) :
             self.params = params
+            # Tell the GradScaler to skip attempting to unscale
+            self._step_supports_amp_scaling = True
+            self._dummy = True
 
-        def step(self) :
+        @torch.no_grad()
+        def step(self, closure=None, grad_scaler=None) :
             pass
 
         def zero_grad(self, set_to_none=False) :

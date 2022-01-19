@@ -8,7 +8,7 @@ from engines import runner
 import xformer_multihead_attn
 import xformer_feed_fwd
 
-def data_func(steps, dtype, device) :
+def input_func(steps, dtype, device) :
     results = []
     for _ in range(steps) :
         data = torch.randn(128, 64, 1024, dtype=dtype, device=device)
@@ -38,4 +38,4 @@ class BertLayer(nn.Module):
 from components.dummy_optimizer import optim_func
 
 if __name__ == "__main__" :
-    runner.run(sys.argv, BertLayer(1024, 4096, 16, 0.1), optim_func, data_func, grad_func) 
+    runner.run(sys.argv, BertLayer(1024, 4096, 16, 0.1), optim_func, input_func, grad_func) 

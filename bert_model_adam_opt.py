@@ -10,7 +10,7 @@ def optim_func(params) :
 
 from bert_model import BertForPreTraining
 from bert_model import BertConfig
-from bert_model import data_func
+from bert_model import input_func
 
 if __name__ == "__main__" :
-    runner.run(sys.argv, BertForPreTraining(BertConfig()), optim_func, data_func, None) 
+    runner.run(sys.argv, BertForPreTraining(BertConfig()), optim_func, input_func, None) 

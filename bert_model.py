@@ -13,7 +13,7 @@ from apex.optimizers.fused_mixed_precision_lamb import FusedMixedPrecisionLamb
 def optim_func(params) :
     return FusedMixedPrecisionLamb(params)
 
-def data_func(steps, dtype, device) :
+def input_func(steps, dtype, device) :
     vocab_size = 30522
     sequences = 64
     sequence_length = 128
@@ -226,4 +226,4 @@ class BertForPreTraining(BertPreTrainedModel):
         return loss
 
 if __name__ == "__main__" :
-    runner.run(sys.argv, BertForPreTraining(BertConfig()), optim_func, data_func, None) 
+    runner.run(sys.argv, BertForPreTraining(BertConfig()), optim_func, input_func, None) 

@@ -6,7 +6,7 @@ from torch.nn import functional as F
 
 from engines import runner
 
-def data_func(steps, dtype, device) :
+def input_func(steps, dtype, device) :
     results = []
     for _ in range(steps) :
         data = torch.randn(128, 64, 1024, dtype=dtype, device=device)
@@ -105,4 +105,4 @@ class TestModule(nn.Module):
 from components.dummy_optimizer import optim_func
 
 if __name__ == "__main__" :
-    runner.run(sys.argv, TestModule(1024, 16, 0.1), optim_func, data_func, grad_func) 
+    runner.run(sys.argv, TestModule(1024, 16, 0.1), optim_func, input_func, grad_func) 
