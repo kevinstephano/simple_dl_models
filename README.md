@@ -1,4 +1,4 @@
-# Models and Parts of Models to Test the Pytorch Fusion Frontends
+# Models and Model Blocks to Test the Pytorch Fusion Frontends
 
 ## Basic Usage
 
