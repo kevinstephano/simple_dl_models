@@ -1,7 +1,7 @@
 import argparse
 import torch
 
-import eager_engine
+from engines import eager_engine
 
 def run(sys_argv, model, optim_func, data_func, grad_func) : 
     parser = argparse.ArgumentParser(description='DL Models Runner')
@@ -21,13 +21,13 @@ def run(sys_argv, model, optim_func, data_func, grad_func) :
 
     tests = []
     if args.jit_script :
-        import jit_script_engine
+        from engines import jit_script_engine
         tests.append(("JIT_Script", jit_script_engine))
     if args.aot_autograd :
-        import aot_autograd_engine
+        from engines import aot_autograd_engine
         tests.append(("AOT_Autograd", aot_autograd_engine))
     if args.ltc :
-        import ltc_engine
+        from engines import ltc_engine
         tests.append(("LTC", ltc_engine))
 
     test_times = []

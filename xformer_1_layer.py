@@ -3,7 +3,7 @@ import math
 import torch
 from torch import nn
 
-import runner
+from engines import runner
 
 import xformer_multihead_attn
 import xformer_feed_fwd

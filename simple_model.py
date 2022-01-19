@@ -1,7 +1,7 @@
 import sys
 import torch
 
-import runner
+from engines import runner
 
 def optim_func(params) :
     return torch.optim.SGD(params, lr=0.01)
