@@ -11,7 +11,7 @@ def train_loop(args, model, optim_func, input_func, grad_func=None) :
     optimizer = optim_func(model.parameters())
     scaler = torch.cuda.amp.GradScaler(enabled=(args.grad_scaler and not hasattr(optimizer, '_dummy')))
 
-    batches = input_func(args.steps, args.input_dtype, args.device)
+    batches = input_func(args.warmup_steps+args.steps, args.input_dtype, args.device)
     grads = None
     if grad_func :
         grads = grad_func(args.warmup_steps+args.steps, args.input_dtype, args.device)

@@ -1,5 +1,6 @@
 import argparse
 import torch
+import random
 
 from engines import eager_engine
 
@@ -8,6 +9,7 @@ def run(sys_argv, model, optim_func, input_func, grad_func) :
     parser.add_argument('--warmup_steps', default=5, type=int, help='Model steps.')
     parser.add_argument('--steps', default=20, type=int, help='Model steps.')
     parser.add_argument('--grad_accum_steps', default=1, type=int, help='Steps per optimizer step')
+    parser.add_argument('--seed', default=42, type=int, help='Random Seed.')
     parser.add_argument('--model_dtype', default='torch.float32', type=str, help='Model data type.')
     parser.add_argument('--input_dtype', default='torch.float32', type=str, help='Input data type.')
     parser.add_argument('--amp', default=False, action='store_true', help='Run with AMP autocast and GradScaler when using FP16 inputs.')
@@ -44,8 +46,14 @@ def run(sys_argv, model, optim_func, input_func, grad_func) :
 
     test_times = []
     for name,engine in tests :
+        random.seed(a=args.seed)
+        torch.cuda.manual_seed(args.seed)
+        torch.random.manual_seed(args.seed)
         test_times.append((name, engine.train_loop(args, model, optim_func, input_func, grad_func) / args. steps * 1000.0))
         
+    random.seed(a=args.seed)
+    torch.cuda.manual_seed(args.seed)
+    torch.random.manual_seed(args.seed)
     eager_time = eager_engine.train_loop(args, model, optim_func, input_func, grad_func) / args.steps * 1000.0
 
     timing_str = ">>> Eager-Time(us): {:.3f}".format(eager_time)
