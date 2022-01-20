@@ -13,7 +13,7 @@ There are two profiling scripts:
 * `profile_api_start.sh` : Only profiles after the Cuda API is called to start profiling after warmup
 
 ```
-./scripts/profile_api_start.sh python [model file] [engine: --jit_script|--ltc|--aot_autograd]
+./scripts/profile_api_start.sh python [model file] [engine: --jit_script|--ltc|--aot_autograd] [--profile_with_nvtx]
 ```
 
 ## Example Output
