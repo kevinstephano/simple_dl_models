@@ -25,6 +25,10 @@ python [model file] [engine: --jit_script|--ltc|--aot_autograd] --amp
 ### Mixed Precsion with Model in FP16 and GradScaler (Advanced Performace Usage)
 ```
 python [model file] [engine: --jit_script|--ltc|--aot_autograd] --max_fp16_perf
+
+or
+
+python [model file] [engine: --jit_script|--ltc|--aot_autograd] --grad_scaler --input_dtype=torch.float16 --model_dtype=torch.float16
 ```
 _This set of options does not work with Optimizers that rely on GradScaler to do the unscaling (Native Pytorch Optimizers) as it asserts on FP16 weights. For test purposes, just don't use the `--grad_scaler` flag._
 
