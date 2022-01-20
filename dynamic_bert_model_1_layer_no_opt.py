@@ -14,4 +14,7 @@ from components.dummy_optimizer import optim_func
 if __name__ == "__main__" :
     config = BertConfig()
     config.num_hidden_layers = 1
+    # We need a large number of warmup steps pre-compile all the variants
+    # TODO: breakout the warmup steps and just iterate through the known sizes
+    sys.argv.append('--warmup_steps=30')
     runner.run(sys.argv, BertForPreTraining(config), optim_func, input_func, None) 

@@ -13,6 +13,7 @@ def run(sys_argv, model, optim_func, input_func, grad_func) :
     parser.add_argument('--model_dtype', default='torch.float32', type=str, help='Model data type.')
     parser.add_argument('--input_dtype', default='torch.float32', type=str, help='Input data type.')
     parser.add_argument('--amp', default=False, action='store_true', help='Run with AMP autocast and GradScaler when using FP16 inputs.')
+    parser.add_argument('--max_fp16_perf', default=False, action='store_true', help='Run with only GradScaler with FP16 inputs and FP16 model parameters.')
     parser.add_argument('--grad_scaler', default=False, action='store_true', help='Run with GradScaler when using FP16 inputs.')
     parser.add_argument('--device', default='cuda', type=str, help='Device type.')
     parser.add_argument('--jit_script', default=False, action='store_true', help='Run with jit.script model.')
@@ -32,6 +33,10 @@ def run(sys_argv, model, optim_func, input_func, grad_func) :
         args.grad_scaler = True
     if args.grad_scaler :
         assert args.input_dtype == torch.float16, "Input dtype is incorrect for GradScaler usage: {}".format(args.input_dtype)
+    if args.max_fp16_perf :
+        args.input_dtype = torch.float16
+        args.model_dtype = torch.float16
+        args.grad_scaler = True
 
     tests = []
     if args.jit_script :
