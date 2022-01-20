@@ -5,8 +5,16 @@
 ```
 python [model file] [engine: --jit_script|--ltc|--aot_autograd] 
 ```
+If you include no options with the model file, only eager mode will be timed
 
-If you include no options with the model file, only eager mode will be timed.
+## Profiling Usage
+There are two profiling scripts:
+* `profile_all.sh` : profiles everything that runs
+* `profile_api_start.sh` : Only profiles after the Cuda API is called to start profiling after warmup
+
+```
+./scripts/profile_api_start.sh python [model file] [engine: --jit_script|--ltc|--aot_autograd]
+```
 
 ## Example Output
 
@@ -23,6 +31,7 @@ Model parameters remain in FP32 and input data is in FP16
 python [model file] [engine: --jit_script|--ltc|--aot_autograd] --amp
 ```
 ### Mixed Precsion with Model in FP16 and GradScaler (Advanced Performace Usage)
+Model parameters are in FP16 and input data is in FP16
 ```
 python [model file] [engine: --jit_script|--ltc|--aot_autograd] --max_fp16_perf
 
