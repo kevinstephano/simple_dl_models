@@ -30,7 +30,7 @@ Model parameters remain in FP32 and input data is in FP16
 ```
 python [model file] [engine: --jit_script|--ltc|--aot_autograd] --amp
 ```
-### Mixed Precsion with Model in FP16 and GradScaler (Advanced Performace Usage)
+### Mixed Precision with Model in FP16 and GradScaler (Advanced Performace Usage)
 Model parameters are in FP16 and input data is in FP16
 ```
 python [model file] [engine: --jit_script|--ltc|--aot_autograd] --max_fp16_perf
