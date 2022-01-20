@@ -24,7 +24,7 @@ def train_loop(args, model, optim_func, input_func, grad_func=None) :
             with torch.cuda.amp.autocast(enabled=args.amp) :
                 loss = jit_model(*batch)
             if grads :
-                scaler.scale(loss).backward(grads)
+                scaler.scale(loss).backward(grads[step])
             else :
                 scaler.scale(loss).backward()
  
@@ -40,5 +40,5 @@ def train_loop(args, model, optim_func, input_func, grad_func=None) :
                 start_evt.record()
     
     stop_evt.record()
-    torch.cuda.synchronize()
+    stop_evt.synchronize()
     return start_evt.elapsed_time(stop_evt)

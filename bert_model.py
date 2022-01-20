@@ -14,7 +14,7 @@ def optim_func(params) :
     return FusedMixedPrecisionLamb(params)
 
 def input_func(steps, dtype, device) :
-    vocab_size = 30522
+    vocab_size = 30528
     sequences = 64
     sequence_length = 128
     results = []
@@ -35,7 +35,7 @@ class BertConfig :
         self.dropout_prob = 0.1
         self.num_hidden_layers = 24
         self.hidden_act = torch.nn.functional.gelu
-        self.vocab_size = 30522
+        self.vocab_size = 30528 # Increase to a multiple of 8
         self.max_position_embeddings = 512
         self.type_vocab_size = 2
         self.initializer_range = 0.02
@@ -226,4 +226,5 @@ class BertForPreTraining(BertPreTrainedModel):
         return loss
 
 if __name__ == "__main__" :
+    sys.argv.append('--grad_accum_steps=4')
     runner.run(sys.argv, BertForPreTraining(BertConfig()), optim_func, input_func, None) 

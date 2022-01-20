@@ -7,7 +7,7 @@ from torch import nn
 from engines import runner
 
 def input_func(steps, dtype, device) :
-    vocab_size = 30522
+    vocab_size = 30528
     sequences = 64
     max_sequence_length = 128
     results = []
@@ -26,4 +26,5 @@ from bert_model import BertConfig
 from bert_model import optim_func
 
 if __name__ == "__main__" :
+    sys.argv.append('--grad_accum_steps=4')
     runner.run(sys.argv, BertForPreTraining(BertConfig()), optim_func, input_func, None) 

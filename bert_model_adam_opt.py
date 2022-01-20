@@ -13,4 +13,5 @@ from bert_model import BertConfig
 from bert_model import input_func
 
 if __name__ == "__main__" :
+    sys.argv.append('--grad_accum_steps=4')
     runner.run(sys.argv, BertForPreTraining(BertConfig()), optim_func, input_func, None) 
