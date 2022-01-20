@@ -1,6 +1,7 @@
 import argparse
-import torch
+import os
 import random
+import torch
 
 from engines import eager_engine
 
@@ -19,12 +20,14 @@ def run(sys_argv, model, optim_func, input_func, grad_func) :
     parser.add_argument('--jit_script', default=False, action='store_true', help='Run with jit.script model.')
     parser.add_argument('--aot_autograd', default=False, action='store_true', help='Run with AOT Autograd.')
     parser.add_argument('--ltc', default=False, action='store_true', help='Run with Lazy Tensors.')
+    parser.add_argument('--profile_with_nvtx', default=False, action='store_true', help='Enable NVTX markers when profiling.')
 
     args,extra_args = parser.parse_known_args(args=sys_argv[1:])
 
     assert len(extra_args) == 0, "Unknown args: {}".format(extra_args)
 
-    # Edit Arguments for data types and AMP/GradScaler usage
+    #########################################################
+    # EDIT ARGUMENTS: for data types and AMP/GradScaler usage
     args.model_dtype = eval(args.model_dtype)
     args.input_dtype = eval(args.input_dtype)
     if args.amp :
@@ -37,6 +40,12 @@ def run(sys_argv, model, optim_func, input_func, grad_func) :
         args.input_dtype = torch.float16
         args.model_dtype = torch.float16
         args.grad_scaler = True
+
+    # EDIT ARGUMENTS: for Lazy Tensor Core usage
+    if args.ltc :
+        os.environ["LTC_TS_CUDA"] = '1'
+        args.device = 'lazy'
+    #########################################################
 
     tests = []
     if args.jit_script :

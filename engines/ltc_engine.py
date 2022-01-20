@@ -19,25 +19,26 @@ def train_loop(args, model, optim_func, input_func, grad_func=None) :
     start_evt = torch.cuda.Event(enable_timing=True)
     stop_evt = torch.cuda.Event(enable_timing=True)
 
-    with torch.jit.fuser('fuser2') :
-        for step,batch in enumerate(batches) :
-            with torch.cuda.amp.autocast(enabled=args.amp) :
-                loss = model(*batch)
-            if grads :
-                scaler.scale(loss).backward(grads[step])
-            else :
-                scaler.scale(loss).backward()
+    with torch.autograd.profiler.emit_nvtx(enabled=args.profile_with_nvtx):
+        with torch.jit.fuser('fuser2') :
+            for step,batch in enumerate(batches) :
+                with torch.cuda.amp.autocast(enabled=args.amp) :
+                    loss = model(*batch)
+                if grads :
+                    scaler.scale(loss).backward(grads[step])
+                else :
+                    scaler.scale(loss).backward()
+  
+                if step % args.grad_accum_steps == 0 :
+                    scaler.step(optimizer)
+                    scaler.update()
+                    optimizer.zero_grad(set_to_none=True)
  
-            if step % args.grad_accum_steps == 0 :
-                scaler.step(optimizer)
-                scaler.update()
-                optimizer.zero_grad(set_to_none=True)
-
-            ltm.mark_step()
-
-            if step == args.warmup_steps :
-                torch.cuda.profiler.start()
-                start_evt.record()
+                ltm.mark_step()
+ 
+                if step == args.warmup_steps :
+                    torch.cuda.profiler.start()
+                    start_evt.record()
     
     stop_evt.record()
     stop_evt.synchronize()
