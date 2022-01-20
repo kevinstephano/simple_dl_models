@@ -5,10 +5,11 @@ from functorch.compile import aot_module, partition_with_recompute_fwd_in_bwd, t
 def train_loop(args, model, optim_func, input_func, grad_func=None) :
     model.to(device=args.device)
     model.to(dtype=args.model_dtype)
-    aot_model = aot_module(mod, ts_compile, partition_fn=partition_with_recompute_fwd_in_bwd, decompositions=decomposition_table)
    
     optimizer = optim_func(model.parameters())
     scaler = torch.cuda.amp.GradScaler(enabled=(args.grad_scaler and not hasattr(optimizer, '_dummy')))
+    
+    aot_model = aot_module(model, ts_compile, partition_fn=partition_with_recompute_fwd_in_bwd, decompositions=decomposition_table)
 
     batches = input_func(args.warmup_steps+args.steps, args.input_dtype, args.device)
     grads = None
@@ -25,7 +26,7 @@ def train_loop(args, model, optim_func, input_func, grad_func=None) :
                 start_evt.record()
 
             with torch.cuda.amp.autocast(enabled=args.amp) :
-                loss = jit_model(*batch)
+                loss = aot_model(*batch)
             if grads :
                 scaler.scale(loss).backward(grads[step])
             else :
