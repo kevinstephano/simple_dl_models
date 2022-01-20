@@ -54,4 +54,4 @@ Engines:
 #### Dynamic Batch Size Models (sequence length per batch varies)
 * Full Bert Model (bert-large) with APEX Lamb Optimizer: `dynamic_bert_model.py`
 * Full Bert Model (bert-large) with Native AdamW Optimizer: `dynamic_bert_model_adam_opt.py`
-
+* Bert Model with 1 Layer (bert-large sized) with no optimizer: `dynamic_bert_model_1_layer_no_opt.py`
