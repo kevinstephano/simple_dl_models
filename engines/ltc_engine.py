@@ -22,7 +22,7 @@ def train_loop(args, model, optim_func, input_func, grad_func=None) :
     with torch.jit.fuser('fuser2') :
         for step,batch in enumerate(batches) :
             with torch.cuda.amp.autocast(enabled=args.amp) :
-                loss = jit_model(*batch)
+                loss = model(*batch)
             if grads :
                 scaler.scale(loss).backward(grads[step])
             else :
