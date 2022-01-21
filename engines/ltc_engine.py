@@ -4,6 +4,9 @@ import lazy_tensor_core
 lazy_tensor_core._LAZYC._ltc_init_ts_backend()
 import lazy_tensor_core.core.lazy_model as ltm
 
+# Turning off Horizontal Fusion in NVFuser. A bug is seen with optimizers
+torch._C._jit_set_nvfuser_horizontal_mode(False)
+
 def train_loop(args, model, optim_func, input_func, grad_func=None) :
     model.to(device=args.device)
     model.to(dtype=args.model_dtype)

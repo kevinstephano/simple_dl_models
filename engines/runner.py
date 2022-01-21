@@ -5,6 +5,9 @@ import torch
 
 from engines import eager_engine
 
+# Enable AMP in TorchScript
+torch._C._jit_set_autocast_mode(True)
+
 def run(sys_argv, model, optim_func, input_func, grad_func) : 
     parser = argparse.ArgumentParser(description='DL Models Runner')
     parser.add_argument('--warmup_steps', default=10, type=int, help='Warmup model steps.')
@@ -21,6 +24,7 @@ def run(sys_argv, model, optim_func, input_func, grad_func) :
     parser.add_argument('--aot_autograd', default=False, action='store_true', help='Run with AOT Autograd.')
     parser.add_argument('--ltc', default=False, action='store_true', help='Run with Lazy Tensors.')
     parser.add_argument('--profile_with_nvtx', default=False, action='store_true', help='Enable NVTX markers when profiling.')
+    parser.add_argument('--skip_eager', default=False, action='store_true', help='Skip the Eager Mode comparison.')
 
     args,extra_args = parser.parse_known_args(args=sys_argv[1:])
 
@@ -58,10 +62,12 @@ def run(sys_argv, model, optim_func, input_func, grad_func) :
         tests.append(("LTC", ltc_engine))
    
     # Run eager mode first
-    random.seed(a=args.seed)
-    torch.cuda.manual_seed(args.seed)
-    torch.random.manual_seed(args.seed)
-    eager_time = eager_engine.train_loop(args, model, optim_func, input_func, grad_func) / args.steps * 1000.0
+    eager_time = 0.0
+    if not args.skip_eager :
+        random.seed(a=args.seed)
+        torch.cuda.manual_seed(args.seed)
+        torch.random.manual_seed(args.seed)
+        eager_time = eager_engine.train_loop(args, model, optim_func, input_func, grad_func) / args.steps * 1000.0
 
     # Run specified engines
     test_times = []
