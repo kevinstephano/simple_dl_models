@@ -44,7 +44,6 @@ def run(sys_argv, model, optim_func, input_func, grad_func) :
     # EDIT ARGUMENTS: for Lazy Tensor Core usage
     if args.ltc :
         os.environ["LTC_TS_CUDA"] = '1'
-        args.device = 'lazy'
     #########################################################
 
     tests = []
@@ -70,7 +69,11 @@ def run(sys_argv, model, optim_func, input_func, grad_func) :
         random.seed(a=args.seed)
         torch.cuda.manual_seed(args.seed)
         torch.random.manual_seed(args.seed)
-        test_times.append((name, engine.train_loop(args, model, optim_func, input_func, grad_func) / args. steps * 1000.0))
+        prev_device = args.device
+        if name == "LTC" :
+            args.device = 'lazy'
+        test_times.append((name, engine.train_loop(args, model, optim_func, input_func, grad_func) / args.steps * 1000.0))
+        args.device = prev_device
         
     timing_str = ">>> Eager-Time(us): {:.3f}".format(eager_time)
 
