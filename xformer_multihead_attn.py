@@ -35,29 +35,28 @@ class BertSelfAttention(nn.Module):
 
         self.dropout = nn.Dropout(dropout_prob)
 
-    def transpose_for_scores(self, x):
-        x = x.view(x.size(0), x.size(1) * self.num_attention_heads, self.attention_head_size).transpose(0,1)
+    def transpose_for_scores(self, x : torch.Tensor, sequences : int):
+        x = x.view(-1, sequences * self.num_attention_heads, self.attention_head_size).transpose(0,1)
         return x
 
-    def transpose_key_for_scores(self, x):
-        x = x.view(x.size(0), x.size(1) * self.num_attention_heads, self.attention_head_size).transpose(0,1).transpose(1,2)
+    def transpose_key_for_scores(self, x : torch.Tensor, sequences : int):
+        x = x.view(-1, sequences * self.num_attention_heads, self.attention_head_size).transpose(0,1).transpose(1,2)
         return x
 
     def forward(self, hidden_states, attention_mask):
+        sequences = hidden_states.size(1)
+
         mixed_query_layer = self.query(hidden_states)
         mixed_key_layer = self.key(hidden_states)
         mixed_value_layer = self.value(hidden_states)
 
-        query_layer = self.transpose_for_scores(mixed_query_layer)
-        key_layer = self.transpose_key_for_scores(mixed_key_layer)
-        value_layer = self.transpose_for_scores(mixed_value_layer)
+        query_layer = self.transpose_for_scores(mixed_query_layer, sequences)
+        key_layer = self.transpose_key_for_scores(mixed_key_layer, sequences)
+        value_layer = self.transpose_for_scores(mixed_value_layer, sequences)
 
         # Take the dot product between "query" and "key" to get the raw attention scores.
         attention_scores = torch.bmm(query_layer, key_layer)
-        attention_scores = attention_scores.view(int(attention_scores.size(0) / self.num_attention_heads),
-                                                 self.num_attention_heads,
-                                                 attention_scores.size(1),
-                                                 attention_scores.size(2))
+        attention_scores = attention_scores.unflatten(0, (sequences, self.num_attention_heads))
         attention_scores = attention_scores / math.sqrt(self.attention_head_size)
         # Apply the attention mask is (precomputed for all layers in BertModel forward() function)
         attention_scores = attention_scores + attention_mask
@@ -69,10 +68,10 @@ class BertSelfAttention(nn.Module):
         # seem a bit unusual, but is taken from the original Transformer paper.
         attention_probs = self.dropout(attention_probs)
         
-        attention_probs = attention_probs.view(attention_probs.size(0)*attention_probs.size(1), attention_probs.size(2), attention_probs.size(3))
+        attention_probs = attention_probs.flatten(0, 1)
         context_layer = torch.bmm(attention_probs, value_layer)
         context_layer = context_layer.transpose(0,1).contiguous()
-        context_layer = context_layer.view(context_layer.size(0), int(context_layer.size(1) / self.num_attention_heads), self.all_head_size)
+        context_layer = context_layer.view(-1, sequences, self.all_head_size)
 
         return context_layer
 
