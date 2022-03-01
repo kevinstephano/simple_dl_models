@@ -55,6 +55,7 @@ Engines:
 ## Single GPU Models
 ### Simple
 * Simple linear layer + relu and SGD Optimizer: `simple_model.py`
+* Simple conv layer + bn + relu and SGD Optimizer: `simple_conv_model.py`
 ### Transformer Model Components
 * Multihead Attention Block with no optimizer: `xformer_multihead_attn.py`
 * Feed Forward Block with no optimizer: `xformer_feed_fwd.py`
