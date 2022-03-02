@@ -7,7 +7,7 @@ def optim_func(params) :
     return torch.optim.SGD(params, lr=0.01)
 
 def input_func(steps, dtype, device) :
-    return [[torch.randn(128, 1024, dtype=dtype, device=device)] for _ in range(steps)]   
+    return [[torch.randn(128, 128, 1024, dtype=dtype, device=device)] for _ in range(steps)]   
 
 class TestModule(torch.nn.Module) :
     def __init__(self) :
