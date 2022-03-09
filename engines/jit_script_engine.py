@@ -25,18 +25,24 @@ def train_loop(args, model, optim_func, input_func, grad_func=None) :
                 if step == args.warmup_steps :
                     torch.cuda.profiler.start()
                     start_evt.record()
- 
-                with torch.cuda.amp.autocast(enabled=args.amp) :
-                    loss = jit_model(*batch)
-                if grads :
-                    scaler.scale(loss).backward(grads[step])
+
+                if not args.inference :
+                    with torch.cuda.amp.autocast(enabled=args.amp) :
+                        loss = jit_model(*batch)
+                    if grads :
+                        scaler.scale(loss).backward(grads[step])
+                    else :
+                        scaler.scale(loss).backward()
+                 
+                    if step % args.grad_accum_steps == 0 :
+                        scaler.step(optimizer)
+                        scaler.update()
+                        optimizer.zero_grad(set_to_none=True)
                 else :
-                    scaler.scale(loss).backward()
-  
-                if step % args.grad_accum_steps == 0 :
-                    scaler.step(optimizer)
-                    scaler.update()
-                    optimizer.zero_grad(set_to_none=True)
+                    with torch.inference_mode() :
+                        with torch.cuda.amp.autocast(enabled=args.amp) :
+                            loss = jit_model(*batch)
+
     
     stop_evt.record()
     stop_evt.synchronize()

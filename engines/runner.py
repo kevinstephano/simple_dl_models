@@ -25,6 +25,7 @@ def run(sys_argv, model, optim_func, input_func, grad_func) :
     parser.add_argument('--ltc', default=False, action='store_true', help='Run with Lazy Tensors.')
     parser.add_argument('--profile_with_nvtx', default=False, action='store_true', help='Enable NVTX markers when profiling.')
     parser.add_argument('--skip_eager', default=False, action='store_true', help='Skip the Eager Mode comparison.')
+    parser.add_argument('--inference', default=False, action='store_true', help='Run inference.')
 
     args,extra_args = parser.parse_known_args(args=sys_argv[1:])
 
