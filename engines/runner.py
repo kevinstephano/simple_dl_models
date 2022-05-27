@@ -22,6 +22,7 @@ def run(sys_argv, model, optim_func, input_func, grad_func) :
     parser.add_argument('--device', default='cuda', type=str, help='Device type.')
     parser.add_argument('--jit_script', default=False, action='store_true', help='Run with jit.script model.')
     parser.add_argument('--aot_autograd', default=False, action='store_true', help='Run with AOT Autograd.')
+    parser.add_argument('--torch_dynamo', default=False, action='store_true', help='Run with Torch Dynamo.')
     parser.add_argument('--ltc', default=False, action='store_true', help='Run with Lazy Tensors.')
     parser.add_argument('--profile_with_nvtx', default=False, action='store_true', help='Enable NVTX markers when profiling.')
     parser.add_argument('--skip_eager', default=False, action='store_true', help='Skip the Eager Mode comparison.')
@@ -58,6 +59,9 @@ def run(sys_argv, model, optim_func, input_func, grad_func) :
     if args.aot_autograd :
         from engines import aot_autograd_engine
         tests.append(("AOT_Autograd", aot_autograd_engine))
+    if args.torch_dynamo :
+        from engines import torch_dynamo_engine
+        tests.append(("Torch_Dynamo", torch_dynamo_engine))
     if args.ltc :
         from engines import ltc_engine
         tests.append(("LTC", ltc_engine))
