@@ -14,6 +14,18 @@ class NullContext:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
+def result_record(args, exec_name, model, exec_time, gpu_memory, compare_record):
+    return {
+         "model_name": model.name,
+         "executor": exec_name,
+         "data_dtype": args.input_dtype,
+         "model_dtype": args.model_dtype,
+         "time(us)": exec_time,
+         "memory(GB)": gpu_memory,
+         "speedup": (round(compare_record['time(us)'] / exec_time, 2) if compare_record is not None else 1.0)
+         "memory_compression": (round(compare_record['memory_compression'] / gpu_memory, 2) if compare_record is not None else 1.0)
+    }
+
 def execute(args, exec_name, model, optim_func, input_func, compare_record=None, grad_func=None) :
     optimize_ctx = NullContext
     if args.torchdynamo or args.aot_autograd:
@@ -83,4 +95,6 @@ def execute(args, exec_name, model, optim_func, input_func, compare_record=None,
    
     stop_evt.record()
     stop_evt.synchronize()
-    return start_evt.elapsed_time(stop_evt)
+    exec_time = start_evt.elapsed_time(stop_evt)
+
+    return result_record(args, exec_name, model, exec_time, 1., compare_record)
