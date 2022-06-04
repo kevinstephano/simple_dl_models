@@ -6,7 +6,7 @@ from torch.nn.parameter import Parameter
 import torch.nn.functional as F
 import torch.nn.init as init
 
-from engines import runner
+from execution import runner
 
 def input_func(steps, dtype, device) :
     results = []
@@ -80,4 +80,4 @@ class TestModule(nn.Module):
 from components.dummy_optimizer import optim_func
 
 if __name__ == "__main__" :
-    runner.run(sys.argv, TestModule(1024, 4096, 0.1), optim_func, input_func, grad_func) 
+    runner.run(sys.argv, "Transformer-Feed-Forward-Block", TestModule(1024, 4096, 0.1), optim_func, input_func, grad_func) 

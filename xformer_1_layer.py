@@ -3,7 +3,7 @@ import math
 import torch
 from torch import nn
 
-from engines import runner
+from execution import runner
 
 import xformer_multihead_attn
 import xformer_feed_fwd
@@ -38,4 +38,4 @@ class BertLayer(nn.Module):
 from components.dummy_optimizer import optim_func
 
 if __name__ == "__main__" :
-    runner.run(sys.argv, BertLayer(1024, 4096, 16, 0.1), optim_func, input_func, grad_func) 
+    runner.run(sys.argv, "Transformer-1-Layer", BertLayer(1024, 4096, 16, 0.1), optim_func, input_func, grad_func) 

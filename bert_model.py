@@ -3,7 +3,7 @@ import math
 import torch
 from torch import nn
 
-from engines import runner
+from execution import runner
 
 import xformer_1_layer
 import xformer_feed_fwd
@@ -227,4 +227,4 @@ class BertForPreTraining(BertPreTrainedModel):
 
 if __name__ == "__main__" :
     sys.argv.append('--grad_accum_steps=4')
-    runner.run(sys.argv, BertForPreTraining(BertConfig()), optim_func, input_func, None) 
+    runner.run(sys.argv, 'BertModel', BertForPreTraining(BertConfig()), optim_func, input_func, None) 

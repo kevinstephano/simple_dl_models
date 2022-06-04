@@ -4,7 +4,7 @@ import random
 import torch
 from torch import nn
 
-from engines import runner
+from execution import runner
 
 from bert_model_adam_opt import BertForPreTraining
 from bert_model_adam_opt import BertConfig
@@ -16,4 +16,4 @@ if __name__ == "__main__" :
     # We need a large number of warmup steps pre-compile all the variants
     # TODO: breakout the warmup steps and just iterate through the known sizes
     sys.argv.append('--warmup_steps=30')
-    runner.run(sys.argv, BertForPreTraining(BertConfig()), optim_func, input_func, None) 
+    runner.run(sys.argv, 'Dynamic-BertModel-AdamOpt', BertForPreTraining(BertConfig()), optim_func, input_func, None) 

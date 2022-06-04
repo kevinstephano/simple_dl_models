@@ -2,7 +2,7 @@ import sys
 import torch
 import random
 
-from engines import runner
+from execution import runner
 
 def optim_func(params) :
     return torch.optim.SGD(params, lr=0.01)
@@ -28,4 +28,4 @@ class TestModule(torch.nn.Module) :
         return out3.sum()
 
 if __name__ == "__main__" :
-    runner.run(sys.argv, TestModule(), optim_func, input_func, None) 
+    runner.run(sys.argv, 'Dynamic-Simple-Model-View', TestModule(), optim_func, input_func, None) 

@@ -3,7 +3,7 @@ import math
 import torch
 from torch import nn
 
-from engines import runner
+from execution import runner
 
 def optim_func(params) :
     return torch.optim.AdamW(params)
@@ -14,4 +14,4 @@ from bert_model import input_func
 
 if __name__ == "__main__" :
     sys.argv.append('--grad_accum_steps=4')
-    runner.run(sys.argv, BertForPreTraining(BertConfig()), optim_func, input_func, None) 
+    runner.run(sys.argv, 'BertModel-AdamOpt', BertForPreTraining(BertConfig()), optim_func, input_func, None) 
