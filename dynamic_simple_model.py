@@ -23,7 +23,7 @@ class TestModule(torch.nn.Module) :
         out1 = self.linear(inputs)
         out2 = self.act(out1)
         out3 = out2 + inputs
-        return out3.sum()
+        return (out3.sum(),)
 
 if __name__ == "__main__" :
     runner.run(sys.argv, 'Dynamic-Simple-Model', TestModule(), optim_func, input_func, None) 

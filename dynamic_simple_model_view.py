@@ -25,7 +25,7 @@ class TestModule(torch.nn.Module) :
         out1_5 = out1.view(inputs.size(0), inputs.size(1), inputs.size(2))
         out2 = self.act(out1_5)
         out3 = out2 + inputs
-        return out3.sum()
+        return (out3.sum(),)
 
 if __name__ == "__main__" :
     runner.run(sys.argv, 'Dynamic-Simple-Model-View', TestModule(), optim_func, input_func, None) 

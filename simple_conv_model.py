@@ -20,7 +20,7 @@ class TestModule(torch.nn.Module) :
         out1 = self.conv(inputs)
         out2 = self.bn(out1)
         out3 = self.act(out2)
-        return out3.sum()
+        return (out3.sum(),)
 
 if __name__ == "__main__" :
     runner.run(sys.argv, 'Simple-Conv-Model', TestModule(), optim_func, input_func, None) 

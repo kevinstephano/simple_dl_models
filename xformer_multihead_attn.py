@@ -100,7 +100,7 @@ class TestModule(nn.Module):
     def forward(self, input_tensor, attention_mask):
         self_output = self.self(input_tensor, attention_mask)
         attention_output = self.output(self_output, input_tensor)
-        return attention_output
+        return (attention_output,)
 
 from components.dummy_optimizer import optim_func
 

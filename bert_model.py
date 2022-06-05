@@ -76,7 +76,7 @@ class BertEncoder(nn.Module):
     def forward(self, hidden_states, attention_mask):
         hidden_states = hidden_states.transpose(0,1)
         for i,layer_module in enumerate(self.layer):
-            hidden_states = layer_module(hidden_states, attention_mask)
+            (hidden_states,) = layer_module(hidden_states, attention_mask)
         # The hidden states need to be contiguous at this point to enable
         # dense_sequence_output
         hidden_states = hidden_states.transpose(0,1).contiguous()
@@ -223,7 +223,7 @@ class BertForPreTraining(BertPreTrainedModel):
         sequence_output = encoded_layers[-1]
         prediction_scores, seq_relationship_score = self.cls(sequence_output, pooled_output, masked_lm_labels)
         loss = self.criterion(prediction_scores, seq_relationship_score, masked_lm_labels, next_sentence_labels)
-        return loss
+        return (loss,)
 
 if __name__ == "__main__" :
     sys.argv.append('--grad_accum_steps=4')

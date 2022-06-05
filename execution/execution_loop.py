@@ -1,6 +1,5 @@
 import gc
 import importlib
-import pip
 import subprocess
 import sys
 import torch
@@ -104,9 +103,9 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
                     if args.warmup_steps > 4 and step == 4:
                         gpu_memory = get_cur_memory() 
                     if grads :
-                        scaler.scale(loss).backward(grads[step])
+                        scaler.scale(loss[0]).backward(grads[step])
                     else :
-                        scaler.scale(loss).backward()
+                        scaler.scale(loss[0]).backward()
                 
                     if step % args.grad_accum_steps == 0 :
                         scaler.step(optimizer)
@@ -120,6 +119,7 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
                             gpu_memory = get_cur_memory() 
    
     stop_evt.record()
+    start_evt.synchronize()
     stop_evt.synchronize()
     exec_time = round(start_evt.elapsed_time(stop_evt) / args.steps * 1000.0, 3)
 

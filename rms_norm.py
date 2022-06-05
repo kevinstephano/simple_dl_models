@@ -1,7 +1,7 @@
 import sys
 import torch
 
-from engines import runner
+from execution import runner
 
 class RMSNorm(torch.nn.Module):
     def __init__(self, hidden_size, dtype, device):
@@ -27,9 +27,9 @@ class TestModule(torch.nn.Module) :
 
     def forward(self, inputs) :
         out1 = self.norm(inputs)
-        return out1
+        return (out1,)
 
 from components.dummy_optimizer import optim_func
 
 if __name__ == "__main__" :
-    runner.run(sys.argv, TestModule(), optim_func, input_func, grad_func) 
+    runner.run(sys.argv, 'RMSNorm',TestModule(), optim_func, input_func, grad_func) 

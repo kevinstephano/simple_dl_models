@@ -75,7 +75,7 @@ class TestModule(nn.Module):
     def forward(self, hidden_states):
         intermediate_output = self.intermediate(hidden_states)
         layer_output = self.output(intermediate_output, hidden_states)
-        return layer_output
+        return (layer_output,)
 
 from components.dummy_optimizer import optim_func
 

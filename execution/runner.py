@@ -4,6 +4,8 @@ import random
 import torch
 import pandas as pd
 
+pd.options.display.max_colwidth=100
+
 from execution import execution_loop
 
 def run(sys_argv, model_name, model, optim_func, input_func, grad_func) : 

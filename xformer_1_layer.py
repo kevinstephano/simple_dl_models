@@ -33,7 +33,7 @@ class BertLayer(nn.Module):
         attention_output = self.self_output(self_output, input_tensor)
         intermediate_output = self.intermediate(attention_output)
         layer_output = self.output(intermediate_output, attention_output)
-        return layer_output
+        return (layer_output,)
 
 from components.dummy_optimizer import optim_func
 
