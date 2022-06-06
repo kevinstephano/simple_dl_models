@@ -11,10 +11,10 @@ class BertLayerNorm(torch.nn.Module):
         self.bias = torch.nn.Parameter(torch.zeros(hidden_size))
 
     def forward(self, x):
-        u = x.mean(-1, keepdim=True)
+        u = x.mean(2, keepdim=True) # Specifying -1 for reduction dimension causes an error in TorchScript
         s = (x - u)
         s = s * s
-        s = s.mean(-1, keepdim=True)
+        s = s.mean(2, keepdim=True) # Specifying -1 for reduction dimension causes an error in TorchScript
         x = (x - u) / torch.sqrt(s + self.eps)
         x = self.weight * x + self.bias
         return x

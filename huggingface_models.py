@@ -1,8 +1,11 @@
 import math
 import importlib
+import pandas as pd
 import torch
 import subprocess
 import sys
+
+pd.options.display.max_colwidth=100
 
 from execution import runner
 from torch.optim import AdamW
@@ -101,19 +104,24 @@ def optim_func(params) :
     return AdamW(params)
 
 if __name__ == "__main__" :
+
+    final_results = []
  
     config = BertConfig.from_pretrained('bert-large-uncased')
-    runner.run(sys.argv, 'BertForPreTraining_P1_bert-large-uncased_[seqs=64,seql=128]', BertForPreTraining(config), optim_func, bert_p1_input_func, None) 
-    runner.run(sys.argv, 'BertForPreTraining_P2_bert-large-uncased_[seqs=16,seql=512]', BertForPreTraining(config), optim_func, bert_p2_input_func, None) 
+    final_results += runner.run(sys.argv, 'BertForPreTraining_P1_bert-large-uncased_[seqs=64,seql=128]', BertForPreTraining(config), optim_func, bert_p1_input_func, None)
+    final_results += runner.run(sys.argv, 'BertForPreTraining_P2_bert-large-uncased_[seqs=16,seql=512]', BertForPreTraining(config), optim_func, bert_p2_input_func, None)
     
     config = GPT2Config.from_pretrained('gpt2-large')
-    runner.run(sys.argv, 'GPT2LMHeadModel_gpt2-large_[seqs=2,seql=1024]', GPT2LMHeadModel(config), optim_func, gpt2_input_func, None) 
+    final_results += runner.run(sys.argv, 'GPT2LMHeadModel_gpt2-large_[seqs=2,seql=1024]', GPT2LMHeadModel(config), optim_func, gpt2_input_func, None)
      
     config = RobertaConfig.from_pretrained('roberta-large')
-    runner.run(sys.argv, 'RobertaForMaskedLM_roberta-large_[seqs=64,seql=128]', RobertaForMaskedLM(config), optim_func, roberta_input_func, None) 
+    final_results += runner.run(sys.argv, 'RobertaForMaskedLM_roberta-large_[seqs=64,seql=128]', RobertaForMaskedLM(config), optim_func, roberta_input_func, None)
     
     config = AlbertConfig.from_pretrained('albert-xxlarge-v2')
-    runner.run(sys.argv, 'AlbertForPreTraining_albert-xxlarge-v2_[seqs=8,seql=512]', AlbertForPreTraining(config), optim_func, albert_input_func, None) 
+    final_results += runner.run(sys.argv, 'AlbertForPreTraining_albert-xxlarge-v2_[seqs=8,seql=512]', AlbertForPreTraining(config), optim_func, albert_input_func, None)
 
     config = T5Config.from_pretrained('t5-large')
-    runner.run(sys.argv, 'T5ForConditionalGeneration-t5-large_[seqs=4,seql=512]', T5ForConditionalGeneration(config), optim_func, t5_input_func, None) 
+    final_results += runner.run(sys.argv, 'T5ForConditionalGeneration-t5-large_[seqs=4,seql=512]', T5ForConditionalGeneration(config), optim_func, t5_input_func, None)
+
+    print('=========================== Final Results ===========================')
+    print(pd.DataFrame(final_results))

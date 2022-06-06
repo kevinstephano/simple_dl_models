@@ -10,15 +10,15 @@ class RMSNorm(torch.nn.Module):
         self.variance_epsilon = 1e-6
 
     def forward(self, x : torch.Tensor):
-        variance = (x * x).mean(-1, keepdim=True)
+        variance = (x * x).mean(2, keepdim=True) # Specifying -1 for reduction dimension causes an error in TorchScript
         x_hat = x * torch.rsqrt(variance + self.variance_epsilon)
         return self.weight * x_hat
 
 def input_func(steps, dtype, device) :
-    return [[torch.randn(24, 128, 1024, dtype=dtype, device=device)] for _ in range(steps)]   
+    return [[torch.randn(128, 128, 1024, dtype=dtype, device=device)] for _ in range(steps)]   
 
 def grad_func(steps, dtype, device) :
-    return [torch.randn(24, 128, 1024, dtype=dtype, device=device) for _ in range(steps)]
+    return [torch.randn(128, 128, 1024, dtype=dtype, device=device) for _ in range(steps)]
 
 class TestModule(torch.nn.Module) :
     def __init__(self) :
