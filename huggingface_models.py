@@ -24,6 +24,7 @@ finally:
     from transformers import RobertaConfig, RobertaForMaskedLM
     from transformers import AlbertConfig, AlbertForPreTraining
     from transformers import T5Config, T5ForConditionalGeneration
+    from transformers import BartConfig, BartForConditionalGeneration
     from transformers import DebertaConfig, DebertaForMaskedLM
     from transformers import XLNetConfig, XLNetLMHeadModel
 
@@ -92,13 +93,27 @@ def albert_input_func(steps, dtype, device) :
 
 def t5_input_func(steps, dtype, device) :
     vocab_size = 32128
-    sequences = 4
-    sequence_length = 512
+    sequences = 8
+    src_sequence_length = 512
+    tgt_sequence_length = 128
     results = []
     for _ in range(steps) :
-        input_ids = torch.randint(0, vocab_size, (sequences, sequence_length), device=device, dtype=torch.int64, requires_grad=False)
-        attention_mask = torch.randint(0, 2, (sequences, sequence_length), device=device, dtype=torch.int64, requires_grad=False)
-        labels = torch.randint(0, vocab_size, (sequences, sequence_length), device=device, dtype=torch.int64, requires_grad=False)
+        input_ids = torch.randint(0, vocab_size, (sequences, src_sequence_length), device=device, dtype=torch.int64, requires_grad=False)
+        attention_mask = torch.randint(0, 2, (sequences, src_sequence_length), device=device, dtype=torch.int64, requires_grad=False)
+        labels = torch.randint(0, vocab_size, (sequences, tgt_sequence_length), device=device, dtype=torch.int64, requires_grad=False)
+        results.append([input_ids, attention_mask, None, None, None, None, None, None, None, None, None, labels, None, None, None, False])
+    return results
+
+def bart_input_func(steps, dtype, device) :
+    vocab_size = 50265
+    sequences = 8
+    src_sequence_length = 1024
+    tgt_sequence_length = 128
+    results = []
+    for _ in range(steps) :
+        input_ids = torch.randint(0, vocab_size, (sequences, src_sequence_length), device=device, dtype=torch.int64, requires_grad=False)
+        attention_mask = torch.randint(0, 2, (sequences, src_sequence_length), device=device, dtype=torch.int64, requires_grad=False)
+        labels = torch.randint(0, vocab_size, (sequences, tgt_sequence_length), device=device, dtype=torch.int64, requires_grad=False)
         results.append([input_ids, attention_mask, None, None, None, None, None, None, None, None, None, labels, None, None, None, False])
     return results
 
@@ -144,7 +159,10 @@ if __name__ == "__main__" :
     final_results += runner.run(sys.argv, 'AlbertForPreTraining_albert-xxlarge-v2_[seqs=8,seql=512]', AlbertForPreTraining(config), optim_func, albert_input_func, None)
 
     config = T5Config.from_pretrained('t5-large')
-    final_results += runner.run(sys.argv, 'T5ForConditionalGeneration_t5-large_[seqs=4,seql=512]', T5ForConditionalGeneration(config), optim_func, t5_input_func, None)
+    final_results += runner.run(sys.argv, 'T5ForConditionalGeneration_t5-large_[seqs=8,src_seql=512,tgt_seql=128]', T5ForConditionalGeneration(config), optim_func, t5_input_func, None)
+
+    config = BartConfig.from_pretrained('facebook/bart-large')
+    final_results += runner.run(sys.argv, 'BartForConditionalGeneration_bart-large_[seqs=8,src_seql=1024,tgt_seql=128]', BartForConditionalGeneration(config), optim_func, bart_input_func, None)
 
     config = DebertaConfig.from_pretrained('microsoft/deberta-large')
     final_results += runner.run(sys.argv, 'DebertaForMaskedLM_deberata-large_[seqs=8,seql=512]', DebertaForMaskedLM(config), optim_func, deberta_input_func, None)
