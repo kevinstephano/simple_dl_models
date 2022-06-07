@@ -91,13 +91,13 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
 
     gpu_memory = 0.0
     with torch.autograd.profiler.emit_nvtx(enabled=args.profile_with_nvtx):
-        with torch.jit.fuser('fuser2'), optimize_ctx:
-            for step,batch in enumerate(batches) :
-                if step == args.warmup_steps :
-                    torch.cuda.profiler.start()
-                    start_evt.record()
+        for step,batch in enumerate(batches) :
+            if step == args.warmup_steps :
+                torch.cuda.profiler.start()
+                start_evt.record()
         
-                if not args.inference :
+            if not args.inference :
+                with torch.jit.fuser('fuser2'), optimize_ctx:
                     with torch.cuda.amp.autocast(enabled=args.amp):
                         loss = model(*batch)
                     if args.warmup_steps > 4 and step == 4:
@@ -106,17 +106,17 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
                         scaler.scale(loss[0]).backward(grads[step])
                     else :
                         scaler.scale(loss[0]).backward()
-                
-                    if step % args.grad_accum_steps == 0 :
-                        scaler.step(optimizer)
-                        scaler.update()
-                        optimizer.zero_grad(set_to_none=True)
-                else :
-                    with torch.inference_mode() :
-                        with torch.cuda.amp.autocast(enabled=args.amp):
-                            loss = model(*batch)
-                        if args.warmup_steps > 4 and step == 4:
-                            gpu_memory = get_cur_memory() 
+            
+                if step % args.grad_accum_steps == 0 :
+                    scaler.step(optimizer)
+                    scaler.update()
+                    optimizer.zero_grad(set_to_none=True)
+            else :
+                with torch.inference_mode(), torch.jit.fuser('fuser2'), optimize_ctx:
+                    with torch.cuda.amp.autocast(enabled=args.amp):
+                        loss = model(*batch)
+                    if args.warmup_steps > 4 and step == 4:
+                        gpu_memory = get_cur_memory() 
    
     stop_evt.record()
     start_evt.synchronize()
