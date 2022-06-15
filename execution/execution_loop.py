@@ -56,16 +56,12 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
             @torchdynamo.skip
             def get_cur_memory():
                 torch.cuda.synchronize()
-                gc.collect()
-                torch.cuda.empty_cache()
                 stats = torch.cuda.memory_stats()
                 peak_bytes_requirement = stats["allocated_bytes.all.current"]
                 return peak_bytes_requirement / 1.e9
     else :
         def get_cur_memory():
             torch.cuda.synchronize()
-            gc.collect()
-            torch.cuda.empty_cache()
             stats = torch.cuda.memory_stats()
             peak_bytes_requirement = stats["allocated_bytes.all.current"]
             return peak_bytes_requirement / 1.e9
@@ -75,7 +71,7 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
 
     optimizer = optim_func(model.parameters())
     scaler = torch.cuda.amp.GradScaler(enabled=(args.grad_scaler and not hasattr(optimizer, '_dummy')))
-    
+
     if exec_name == 'aot_autograd':
         model = memory_efficient_fusion(model)
     elif exec_name == 'jit_script':
@@ -95,18 +91,18 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
             if step == args.warmup_steps :
                 torch.cuda.profiler.start()
                 start_evt.record()
-        
+
             if not args.inference :
                 with torch.jit.fuser('fuser2'), optimize_ctx:
                     with torch.cuda.amp.autocast(enabled=args.amp):
                         loss = model(*batch)
                     if args.warmup_steps > 4 and step == 4:
-                        gpu_memory = get_cur_memory() 
+                        gpu_memory = get_cur_memory()
                     if grads :
                         scaler.scale(loss[0]).backward(grads[step])
                     else :
                         scaler.scale(loss[0]).backward()
-            
+
                 if step % args.grad_accum_steps == 0 :
                     scaler.step(optimizer)
                     scaler.update()
