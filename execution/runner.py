@@ -62,6 +62,7 @@ def run(sys_argv, model_name, model, optim_func, input_func, grad_func) :
     # Run eager mode first
     eager_record = None
     if not args.skip_eager :
+        torch.cuda.empty_cache()
         random.seed(a=args.seed)
         torch.cuda.manual_seed(args.seed)
         torch.random.manual_seed(args.seed)
@@ -71,6 +72,7 @@ def run(sys_argv, model_name, model, optim_func, input_func, grad_func) :
     # Run specified engines
     test_times = []
     for name in tests :
+        torch.cuda.empty_cache()
         random.seed(a=args.seed)
         torch.cuda.manual_seed(args.seed)
         torch.random.manual_seed(args.seed)
