@@ -4,6 +4,8 @@ import subprocess
 import sys
 import torch
 
+torch.backends.cuda.matmul.allow_tf32 = True
+
 def pip_install(package):
     subprocess.check_call([sys.executable, "-m", "pip", "install", package])
 
@@ -94,8 +96,8 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
 
             if not args.inference :
                 with torch.jit.fuser('fuser2'), optimize_ctx:
-                    with torch.cuda.amp.autocast(enabled=args.amp):
-                        loss = model(*batch)
+                    #with torch.cuda.amp.autocast(enabled=args.amp):
+                    loss = model(*batch)
                     if args.warmup_steps > 4 and step == 4:
                         gpu_memory = get_cur_memory()
                     if grads :
