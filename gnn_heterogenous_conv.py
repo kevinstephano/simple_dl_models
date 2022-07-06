@@ -14,7 +14,7 @@ def optim_func(params) :
     return torch.optim.SGD(params, lr=0.01)
 
 def input_func(steps, dtype, device):
-    return [frozen_data for step in range(steps)]
+    return [frozen_data.to(device) for _ in range(steps)]
 
 class TestModule(torch.nn.Module) :
     def __init__(self) :
