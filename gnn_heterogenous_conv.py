@@ -7,12 +7,13 @@ import torch.nn.functional as F
 from execution import runner
 
 torch_geometric.seed.seed_everything(42)
-frozen_data = FakeHeteroDataset(avg_num_nodes=20000).generate_data() 
+frozen_data = FakeHeteroDataset(avg_num_nodes=20000).generate_data()
+print(frozen_data)
 def optim_func(params) :
     return torch.optim.SGD(params, lr=0.01)
 
 def input_func(steps, dtype, device):
-    return frozen_data
+    return [frozen_data for step in steps]
 
 class TestModule(torch.nn.Module) :
     def __init__(self) :
