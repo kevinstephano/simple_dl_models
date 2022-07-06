@@ -19,7 +19,7 @@ def input_func(steps, dtype, device):
 class TestModule(torch.nn.Module) :
     def __init__(self) :
         super(TestModule, self).__init__()
-        in_feat = {frozen_data[node_type].x.shape[-1] for node_type in frozen_data.node_types}
+        in_feat = {node_type:frozen_data[node_type].x.shape[-1] for node_type in frozen_data.node_types}
         self.conv1 = HeteroConv(
             {
                 rel: GraphConv((in_feat[rel[0]], in_feat[rel[-1]]), out_feat)
