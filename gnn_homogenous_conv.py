@@ -1,5 +1,6 @@
 import sys
 import torch
+import torch_geometric
 from torch_geometric.datasets import FakeDataset
 from torch_geometric.nn import GraphConv
 import torch.nn.functional as F

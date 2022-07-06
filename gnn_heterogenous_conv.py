@@ -1,5 +1,6 @@
 import sys
 import torch
+import torch_geometric
 from torch_geometric.datasets import FakeHeteroDataset
 from torch_geometric.nn import GraphConv, HeteroConv
 import torch.nn.functional as F
