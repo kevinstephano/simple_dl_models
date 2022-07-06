@@ -16,12 +16,25 @@ def input_func(steps, dtype, device):
 class TestModule(torch.nn.Module) :
     def __init__(self) :
         super(TestModule, self).__init__()
-        self.conv1 = GraphConv(frozen_data.x.size()[-1], 16).jittable()
-        self.conv2 = GraphConv(16, torch.numel(torch.unique(frozen_data.y))).jittable()
+        in_feat = {frozen_data[node_type].x.shape[-1] for node_type in frozen_data.node_types}
+        self.conv1 = HeteroConv(
+            {
+                rel: GraphConv((in_feat[rel[0]], in_feat[rel[-1]]), out_feat)
+                for rel in frozen_data.edge_types
+            }
+        ).jittable()
+        self.conv2 = HeteroConv(
+            {
+                rel: GraphConv((in_feat[rel[0]], in_feat[rel[-1]]), out_feat)
+                for rel in frozen_data.edge_types
+            }
+        ).jittable()
 
-    def forward(self, x, edge_index):
-        x = F.relu(self.conv1(x, edge_index))
-        x = self.conv2(x, edge_index)
+    def forward(self, data):
+        x_dict = data.collect('x')
+        edge_index_dict = data.collect('edge_index')
+        x_dict = F.relu(self.conv1(x_dict, edge_index_dict))
+        x_dict = self.conv2(x_dict, edge_index_dict)
         return F.log_softmax(x, dim=1)
 
 if __name__ == "__main__" :

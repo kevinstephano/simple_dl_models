@@ -19,7 +19,9 @@ class TestModule(torch.nn.Module) :
         self.conv1 = GraphConv(frozen_data.x.size()[-1], 16).jittable()
         self.conv2 = GraphConv(16, torch.numel(torch.unique(frozen_data.y))).jittable()
 
-    def forward(self, x, edge_index):
+    def forward(self, data):
+        x = data.x
+        edge_index = data.edge_index
         x = F.relu(self.conv1(x, edge_index))
         x = self.conv2(x, edge_index)
         return F.log_softmax(x, dim=1)
