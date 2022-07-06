@@ -9,6 +9,7 @@ from execution import runner
 criterion = torch.nn.CrossEntropyLoss()
 torch_geometric.seed.seed_everything(42)
 frozen_data = FakeDataset(avg_num_nodes=20000).generate_data()
+num_classes = torch.numel(torch.unique(frozen_data.y))
 print(frozen_data)
 def optim_func(params) :
     return torch.optim.SGD(params, lr=0.01)
@@ -20,7 +21,7 @@ class TestModule(torch.nn.Module) :
     def __init__(self) :
         super(TestModule, self).__init__()
         self.conv1 = GraphConv(frozen_data.x.size()[-1], 16).jittable()
-        self.conv2 = GraphConv(16, torch.numel(torch.unique(frozen_data.y))).jittable()
+        self.conv2 = GraphConv(16, num_classes).jittable()
 
     def forward(self, data):
         x = data.x

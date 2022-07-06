@@ -30,7 +30,7 @@ class TestModule(torch.nn.Module) :
         )
         self.conv2 = HeteroConv(
             {
-                rel: GraphConv((in_feat[rel[0]], in_feat[rel[-1]]), out_feat).jittable()
+                rel: GraphConv((in_feat[rel[0]], in_feat[rel[-1]]), num_classes).jittable()
                 for rel in frozen_data.edge_types
             }
         )
