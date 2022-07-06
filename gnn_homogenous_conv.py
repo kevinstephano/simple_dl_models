@@ -7,7 +7,8 @@ import torch.nn.functional as F
 from execution import runner
 
 torch_geometric.seed.seed_everything(42)
-frozen_data = FakeDataset(avg_num_nodes=20000).generate_data() 
+frozen_data = FakeDataset(avg_num_nodes=20000).generate_data()
+print(frozen_data)
 def optim_func(params) :
     return torch.optim.SGD(params, lr=0.01)
 
