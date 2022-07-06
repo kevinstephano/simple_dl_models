@@ -30,8 +30,11 @@ def result_record(args, exec_name, model_name, exec_time, gpu_memory, compare_re
     }
 
 def forward_pass(model, batch):
-    if isinstance(batch, torch_geometric.data.Data) or isinstance(batch, torch_geometric.data.HeteroData):
-        return model(batch)
+    if isinstance(batch, torch_geometric.data.Data):
+        return model(batch.x, batch.edge_index, batch.y)
+    elif isinstance(batch, torch_geometric.data.HeteroData):
+        labeled_node_type = list(batch.collect('y').keys())[0] # should only be one labeled node type
+        return model(batch.collect('x'), batch.collect('edge_index'), batch[labeled_node_type].y, labeled_node_type)
     else:
         return model(*batch)
 

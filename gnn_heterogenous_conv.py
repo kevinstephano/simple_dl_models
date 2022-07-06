@@ -9,7 +9,7 @@ from execution import runner
 criterion = torch.nn.CrossEntropyLoss()
 torch_geometric.seed.seed_everything(42)
 frozen_data = FakeHeteroDataset(avg_num_nodes=20000).generate_data()
-labeled_node_type = list(frozen_data.collect('y').keys())[0] # should only be one labeled node type
+
 num_classes = torch.numel(torch.unique(frozen_data[labeled_node_type].y))
 h_size = 32
 print(frozen_data)
@@ -36,14 +36,12 @@ class TestModule(torch.nn.Module) :
             }
         )
 
-    def forward(self, data):
-        x_dict = data.collect('x')
-        edge_index_dict = data.collect('edge_index')
+    def forward(self, x_dict, edge_index_dict, y, labeled_node_type):
         x_dict = (self.conv1(x_dict, edge_index_dict))
         for key in x_dict.keys():
             x_dict[key] = F.relu(x_dict[key])
         x_dict = self.conv2(x_dict, edge_index_dict)
-        return [criterion(x_dict[labeled_node_type], data[labeled_node_type].y)]
+        return [criterion(x_dict[labeled_node_type], y)]
 
 if __name__ == "__main__" :
     runner.run(sys.argv, 'Heterogenous_GNN_Conv', TestModule(), optim_func, input_func, None) 
