@@ -30,10 +30,8 @@ def result_record(args, exec_name, model_name, exec_time, gpu_memory, compare_re
     }
 
 def forward_pass(model, batch):
-    if isinstance(batch, torch_geometric.data.Data):
-        return model(batch.x, batch.edge_index)
-    elif isinstance(batch, torch_geometric.data.HeteroData):
-        ret
+    if isinstance(batch, torch_geometric.data.Data) or isinstance(batch, torch_geometric.data.HeteroData):
+        return model(batch)
     else:
         return model(*batch)
 
