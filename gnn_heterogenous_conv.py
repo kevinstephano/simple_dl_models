@@ -24,16 +24,16 @@ class TestModule(torch.nn.Module) :
         in_feat = {node_type:frozen_data[node_type].x.shape[-1] for node_type in frozen_data.node_types}
         self.conv1 = HeteroConv(
             {
-                rel: GraphConv((in_feat[rel[0]], in_feat[rel[-1]]), 32)
+                rel: GraphConv((in_feat[rel[0]], in_feat[rel[-1]]), 32).jittable()
                 for rel in frozen_data.edge_types
             }
-        ).jittable()
+        )
         self.conv2 = HeteroConv(
             {
-                rel: GraphConv((in_feat[rel[0]], in_feat[rel[-1]]), out_feat)
+                rel: GraphConv((in_feat[rel[0]], in_feat[rel[-1]]), out_feat).jittable()
                 for rel in frozen_data.edge_types
             }
-        ).jittable()
+        )
 
     def forward(self, data):
         x_dict = data.collect('x')
