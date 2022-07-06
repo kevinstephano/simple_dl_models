@@ -27,7 +27,7 @@ class TestModule(torch.nn.Module) :
         edge_index = data.edge_index
         x = F.relu(self.conv1(x, edge_index))
         x = self.conv2(x, edge_index)
-        return criterion(x, data.y)
+        return [criterion(x, data.y)]
 
 if __name__ == "__main__" :
     runner.run(sys.argv, 'Homogenous_GNN_Conv', TestModule(), optim_func, input_func, None) 

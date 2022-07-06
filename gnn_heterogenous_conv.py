@@ -40,7 +40,7 @@ class TestModule(torch.nn.Module) :
         x_dict = self.conv2(x_dict, edge_index_dict)
         y_dict = data.collect('y') 
         labeled_node_type = y_dict.keys()[0] # should only be one labeled node type
-        return criterion(x_dict[labeled_node_type], y_dict[labeled_node_type])
+        return [criterion(x_dict[labeled_node_type], y_dict[labeled_node_type])]
 
 if __name__ == "__main__" :
     runner.run(sys.argv, 'Heterogenous_GNN_Conv', TestModule(), optim_func, input_func, None) 
