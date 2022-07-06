@@ -6,6 +6,7 @@ from torch_geometric.nn import GraphConv
 import torch.nn.functional as F
 from execution import runner
 
+criterion = torch.nn.CrossEntropyLoss()
 torch_geometric.seed.seed_everything(42)
 frozen_data = FakeDataset(avg_num_nodes=20000).generate_data()
 print(frozen_data)
@@ -26,7 +27,7 @@ class TestModule(torch.nn.Module) :
         edge_index = data.edge_index
         x = F.relu(self.conv1(x, edge_index))
         x = self.conv2(x, edge_index)
-        return F.log_softmax(x, dim=1)
+        return criterion(x, data.y)
 
 if __name__ == "__main__" :
     runner.run(sys.argv, 'Homogenous_GNN_Conv', TestModule(), optim_func, input_func, None) 

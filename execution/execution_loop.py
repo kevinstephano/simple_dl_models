@@ -3,7 +3,7 @@ import importlib
 import subprocess
 import sys
 import torch
-
+import torch_geometric
 torch.backends.cuda.matmul.allow_tf32 = True
 
 def pip_install(package):
@@ -28,6 +28,12 @@ def result_record(args, exec_name, model_name, exec_time, gpu_memory, compare_re
          "speedup": (round(compare_record['time(us)'] / exec_time, 2) if compare_record is not None else 1.0),
          "memory_compression": (round(compare_record['memory(GB)'] / gpu_memory, 2) if compare_record is not None else 1.0),
     }
+
+def forward_pass(model, batch):
+    if isinstance(batch, torch_geometric.data.Data) or isinstance(batch, torch_geometric.data.HeteroData):
+        return model(batch)
+    else:
+        return model(*batch)
 
 def execute(args, exec_name, model_name, model, optim_func, input_func, grad_func=None, compare_record=None) :
     optimize_ctx = NullContext()
@@ -97,7 +103,8 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
             if not args.inference :
                 with torch.jit.fuser('fuser2'), optimize_ctx:
                     #with torch.cuda.amp.autocast(enabled=args.amp):
-                    loss = model(*batch)
+                    
+                    loss = forward_pass(model, batch)
                     if args.warmup_steps > 4 and step == 4:
                         gpu_memory = get_cur_memory()
                     if grads :
@@ -112,7 +119,7 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
             else :
                 with torch.inference_mode(), torch.jit.fuser('fuser2'), optimize_ctx:
                     with torch.cuda.amp.autocast(enabled=args.amp):
-                        loss = model(*batch)
+                        loss = forward_pass(model, batch)
                     if args.warmup_steps > 4 and step == 4:
                         gpu_memory = get_cur_memory() 
    

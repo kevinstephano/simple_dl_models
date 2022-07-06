@@ -6,6 +6,7 @@ from torch_geometric.nn import GraphConv, HeteroConv
 import torch.nn.functional as F
 from execution import runner
 
+criterion = torch.nn.CrossEntropyLoss()
 torch_geometric.seed.seed_everything(42)
 frozen_data = FakeHeteroDataset(avg_num_nodes=20000).generate_data()
 print(frozen_data)
@@ -37,7 +38,9 @@ class TestModule(torch.nn.Module) :
         edge_index_dict = data.collect('edge_index')
         x_dict = F.relu(self.conv1(x_dict, edge_index_dict))
         x_dict = self.conv2(x_dict, edge_index_dict)
-        return F.log_softmax(x, dim=1)
+        y_dict = data.collect('y') 
+        labeled_node_type = y_dict.keys()[0] # should only be one labeled node type
+        return criterion(x_dict[labeled_node_type], y_dict[labeled_node_type])
 
 if __name__ == "__main__" :
     runner.run(sys.argv, 'Heterogenous_GNN_Conv', TestModule(), optim_func, input_func, None) 
