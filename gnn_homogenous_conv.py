@@ -23,4 +23,4 @@ class TestModule(torch.nn.Module) :
         return F.log_softmax(x, dim=1)
 
 if __name__ == "__main__" :
-    runner.run(sys.argv, 'Heterogenous_GNN_Conv', TestModule(), optim_func, input_func, None) 
+    runner.run(sys.argv, 'Homogenous_GNN_Conv', TestModule(), optim_func, input_func, None) 
