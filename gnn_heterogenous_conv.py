@@ -9,6 +9,8 @@ from execution import runner
 criterion = torch.nn.CrossEntropyLoss()
 torch_geometric.seed.seed_everything(42)
 frozen_data = FakeHeteroDataset(avg_num_nodes=20000).generate_data()
+labeled_node_type = frozen_data.collect('y').keys()[0] # should only be one labeled node type
+num_classes = torch.numel(torch.unique(frozen_data[labeled_node_type].y))
 print(frozen_data)
 def optim_func(params) :
     return torch.optim.SGD(params, lr=0.01)
@@ -22,7 +24,7 @@ class TestModule(torch.nn.Module) :
         in_feat = {node_type:frozen_data[node_type].x.shape[-1] for node_type in frozen_data.node_types}
         self.conv1 = HeteroConv(
             {
-                rel: GraphConv((in_feat[rel[0]], in_feat[rel[-1]]), out_feat)
+                rel: GraphConv((in_feat[rel[0]], in_feat[rel[-1]]), 32)
                 for rel in frozen_data.edge_types
             }
         ).jittable()
@@ -38,9 +40,7 @@ class TestModule(torch.nn.Module) :
         edge_index_dict = data.collect('edge_index')
         x_dict = F.relu(self.conv1(x_dict, edge_index_dict))
         x_dict = self.conv2(x_dict, edge_index_dict)
-        y_dict = data.collect('y') 
-        labeled_node_type = y_dict.keys()[0] # should only be one labeled node type
-        return [criterion(x_dict[labeled_node_type], y_dict[labeled_node_type])]
+        return [criterion(x_dict[labeled_node_type], data[labeled_node_type].y)]
 
 if __name__ == "__main__" :
     runner.run(sys.argv, 'Heterogenous_GNN_Conv', TestModule(), optim_func, input_func, None) 
