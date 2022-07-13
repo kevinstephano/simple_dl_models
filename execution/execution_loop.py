@@ -62,6 +62,8 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
         finally:
             import torchdynamo
             from torchdynamo.optimizations.training import aot_autograd_speedup_strategy
+            if 'GNN' in model_name:
+                torchdynamo.config.fake_tensor_propagation=False
             optimize_ctx = torchdynamo.optimize(aot_autograd_speedup_strategy)
 
             @torchdynamo.skip
