@@ -11,6 +11,7 @@ torch_geometric.seed.seed_everything(42)
 frozen_data = FakeHeteroDataset(avg_num_nodes=20000).generate_data()
 labeled_node_type = list(frozen_data.collect('y').keys())[0] # should only be one labeled node type
 num_classes = torch.numel(torch.unique(frozen_data[labeled_node_type].y))
+frozen_data.labeled_node_type = labeled_node_type
 h_size = 32
 print(frozen_data)
 def optim_func(params) :
