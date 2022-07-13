@@ -43,7 +43,7 @@ def input_func(steps, dtype, device):
         replace=True,
         transform=T.ToDevice(device),
     )
-
+    data_list = []
     for _ in range(steps):
         data_list.append(next(iter(loader)))
     return data_list
