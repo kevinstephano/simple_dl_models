@@ -23,15 +23,6 @@ def optim_func(params) :
     return torch.optim.SGD(params, lr=0.01)
 
 def input_func(steps, dtype, device):
-    num_work = None
-    if hasattr(os, "sched_getaffinity"):
-        try:
-            num_work = len(os.sched_getaffinity(0)) / 2
-        except Exception:
-            pass
-    if num_work is None:
-        num_work = os.cpu_count() / 2
-    num_work = int(num_work)
     loader = NeighborLoader(
         data,
         num_neighbors=[50, 50],
