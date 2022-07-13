@@ -36,7 +36,6 @@ def input_func(steps, dtype, device):
         shuffle=True,
         drop_last=False,
         input_nodes=("v0", None),
-        num_workers=num_work,
         replace=True,
         transform=T.ToDevice(device),
     )
