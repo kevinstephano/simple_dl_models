@@ -11,7 +11,7 @@ torch_geometric.seed.seed_everything(42)
 data = FakeDataset(avg_num_nodes=10000).generate_data()
 num_classes = torch.numel(torch.unique(data.y))
 h_size = 32
-print(frozen_data)
+print(data)
 def optim_func(params) :
     return torch.optim.SGD(params, lr=0.01)
 
