@@ -5,28 +5,47 @@ from torch_geometric.datasets import FakeHeteroDataset
 from torch_geometric.nn import GraphConv, HeteroConv
 import torch.nn.functional as F
 from execution import runner
+import torch_geometric.transforms as T
+import os
+from torch_geometric.loader import NeighborLoader
 
 criterion = torch.nn.CrossEntropyLoss()
 torch_geometric.seed.seed_everything(42)
 dataset = FakeHeteroDataset(avg_num_nodes=20000)
-num_channels = dataset.num_channels
 data = dataset.generate_data()
 labeled_node_type = list(data.collect('y').keys())[0] # should only be one labeled node type
 num_classes = torch.numel(torch.unique(data[labeled_node_type].y))
 data.labeled_node_type = labeled_node_type
 h_size = 32
+batch_size=1024
 print(data)
 def optim_func(params) :
     return torch.optim.SGD(params, lr=0.01)
 
 def input_func(steps, dtype, device):
-    data_list = []
-    for _ in range(steps):
-        dynamic_data = FakeHeteroDataset(avg_num_nodes=20000)
-        dynamic_data.num_channels = num_channels
-        dynamic_data = dynamic_data.generate_data().to(device)
-        dynamic_data.labeled_node_type = labeled_node_type
-        data_list.append(dynamic_data)
+    num_work = None
+    if hasattr(os, "sched_getaffinity"):
+        try:
+            num_work = len(os.sched_getaffinity(0)) / 2
+        except Exception:
+            pass
+    if num_work is None:
+        num_work = os.cpu_count() / 2
+    num_work = int(num_work)
+    loader = NeighborLoader(
+        data,
+        num_neighbors=[50, 50],
+        batch_size=1024,
+        shuffle=True,
+        drop_last=False,
+        input_nodes=("v0", None),
+        num_workers=num_work,
+        replace=True,
+        transform=T.ToDevice(device),
+    )
+
+    for _ in steps:
+        data_list.append(next(iter(loader)))
     return data_list
 
 class TestModule(torch.nn.Module) :
@@ -51,7 +70,7 @@ class TestModule(torch.nn.Module) :
         for key in x_dict.keys():
             x_dict[key] = F.relu(x_dict[key])
         x_dict = self.conv2(x_dict, edge_index_dict)
-        return [criterion(x_dict[labeled_node_type], y)]
+        return [criterion(x_dict[labeled_node_type][:batch_size], y[:batch_size])]
 
 if __name__ == "__main__" :
     runner.run(sys.argv, 'Heterogenous_GNN_Conv_dynamic', TestModule(), optim_func, input_func, None) 
