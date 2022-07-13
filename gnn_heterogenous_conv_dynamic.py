@@ -8,7 +8,9 @@ from execution import runner
 
 criterion = torch.nn.CrossEntropyLoss()
 torch_geometric.seed.seed_everything(42)
-data = FakeHeteroDataset(avg_num_nodes=20000).generate_data()
+dataset = FakeHeteroDataset(avg_num_nodes=20000)
+num_channels = dataset.num_channels
+data = dataset.generate_data()
 labeled_node_type = list(data.collect('y').keys())[0] # should only be one labeled node type
 num_classes = torch.numel(torch.unique(data[labeled_node_type].y))
 data.labeled_node_type = labeled_node_type
@@ -20,7 +22,9 @@ def optim_func(params) :
 def input_func(steps, dtype, device):
     data_list = []
     for _ in range(steps):
-        dynamic_data = FakeHeteroDataset(avg_num_nodes=20000).generate_data().to(device)
+        dynamic_data = FakeHeteroDataset(avg_num_nodes=20000)
+        dynamic_data.num_channels = num_channels
+        dynamic_data = dynamic_data.generate_data()
         dynamic_data.labeled_node_type = labeled_node_type
         data_list.append(dynamic_data)
     return data_list
