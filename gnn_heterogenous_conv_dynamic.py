@@ -24,7 +24,7 @@ def input_func(steps, dtype, device):
     for _ in range(steps):
         dynamic_data = FakeHeteroDataset(avg_num_nodes=20000)
         dynamic_data.num_channels = num_channels
-        dynamic_data = dynamic_data.generate_data()
+        dynamic_data = dynamic_data.generate_data().to(device)
         dynamic_data.labeled_node_type = labeled_node_type
         data_list.append(dynamic_data)
     return data_list
