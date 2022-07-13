@@ -18,7 +18,12 @@ def optim_func(params) :
     return torch.optim.SGD(params, lr=0.01)
 
 def input_func(steps, dtype, device):
-    return [FakeHeteroDataset(avg_num_nodes=20000).generate_data().to(device) for _ in range(steps)]
+    data_list = []
+    for _ in range(steps):
+        dynamic_data = FakeHeteroDataset(avg_num_nodes=20000).generate_data().to(device)
+        dynamic_data.labeled_node_type = labeled_node_type
+        data_list.append(dynamic_data)
+    return data_list
 
 class TestModule(torch.nn.Module) :
     def __init__(self) :
