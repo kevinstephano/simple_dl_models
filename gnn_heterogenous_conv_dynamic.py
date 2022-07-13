@@ -11,13 +11,13 @@ from torch_geometric.loader import NeighborLoader
 
 criterion = torch.nn.CrossEntropyLoss()
 torch_geometric.seed.seed_everything(42)
-dataset = FakeHeteroDataset(avg_num_nodes=20000)
+dataset = FakeHeteroDataset(avg_num_nodes=10000)
 data = dataset.generate_data()
 labeled_node_type = list(data.collect('y').keys())[0] # should only be one labeled node type
 num_classes = torch.numel(torch.unique(data[labeled_node_type].y))
 data.labeled_node_type = labeled_node_type
 h_size = 32
-batch_size=1024
+batch_size=100
 print(data)
 def optim_func(params) :
     return torch.optim.SGD(params, lr=0.01)
@@ -25,8 +25,8 @@ def optim_func(params) :
 def input_func(steps, dtype, device):
     loader = NeighborLoader(
         data,
-        num_neighbors=[50, 50],
-        batch_size=1024,
+        num_neighbors=[25, 25],
+        batch_size=batch_size,
         shuffle=True,
         drop_last=False,
         input_nodes=("v0", None),

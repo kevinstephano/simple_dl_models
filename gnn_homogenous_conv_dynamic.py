@@ -14,7 +14,7 @@ torch_geometric.seed.seed_everything(42)
 data = FakeDataset(avg_num_nodes=10000).generate_data()
 num_classes = torch.numel(torch.unique(data.y))
 h_size = 32
-batch_size=1024
+batch_size=100
 print(data)
 def optim_func(params) :
     return torch.optim.SGD(params, lr=0.01)
@@ -22,8 +22,8 @@ def optim_func(params) :
 def input_func(steps, dtype, device):
     loader = NeighborLoader(
         data,
-        num_neighbors=[50, 50],
-        batch_size=1024,
+        num_neighbors=[25, 25],
+        batch_size=batch_size,
         shuffle=True,
         drop_last=False,
         replace=True,
