@@ -11,7 +11,6 @@ torch_geometric.seed.seed_everything(42)
 data = FakeHeteroDataset(avg_num_nodes=20000).generate_data()
 labeled_node_type = list(data.collect('y').keys())[0] # should only be one labeled node type
 num_classes = torch.numel(torch.unique(data[labeled_node_type].y))
-data.labeled_node_type = labeled_node_type
 h_size = 32
 print(data)
 def optim_func(params) :
@@ -37,7 +36,7 @@ class TestModule(torch.nn.Module) :
             }
         )
 
-    def forward(self, x_dict, edge_index_dict, y, labeled_node_type):
+    def forward(self, x_dict, edge_index_dict, y):
         x_dict = (self.conv1(x_dict, edge_index_dict))
         for key in x_dict.keys():
             x_dict[key] = F.relu(x_dict[key])
