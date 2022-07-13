@@ -33,7 +33,7 @@ def forward_pass(model, batch):
     if isinstance(batch, torch_geometric.data.Data):
         return model(batch.x, batch.edge_index, batch.y)
     elif isinstance(batch, torch_geometric.data.HeteroData):
-        return model(batch.collect('x'), batch.collect('edge_index'), batch[labeled_node_type].y)
+        return model(batch.collect('x'), batch.collect('edge_index'), batch[batch.labeled_node_type].y)
     else:
         return model(*batch)
 
