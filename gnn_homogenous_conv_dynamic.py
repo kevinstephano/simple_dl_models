@@ -41,7 +41,7 @@ def input_func(steps, dtype, device):
         transform=T.ToDevice(device),
     )
 
-    for _ in steps:
+    for _ in range(steps):
         data_list.append(next(iter(loader)))
 
 class TestModule(torch.nn.Module) :
