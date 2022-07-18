@@ -3,7 +3,6 @@ import importlib
 import subprocess
 import sys
 import torch
-import torch_geometric
 torch.backends.cuda.matmul.allow_tf32 = True
 
 def pip_install(package):
@@ -29,15 +28,26 @@ def result_record(args, exec_name, model_name, exec_time, gpu_memory, compare_re
          "memory_compression": (round(compare_record['memory(GB)'] / gpu_memory, 2) if compare_record is not None else 1.0),
     }
 
-def forward_pass(model, batch):
-    if isinstance(batch, torch_geometric.data.Data):
-        return model(batch.x, batch.edge_index, batch.y)
-    elif isinstance(batch, torch_geometric.data.HeteroData):
-        return model(batch.collect('x'), batch.collect('edge_index'), batch[batch.labeled_node_type].y)
-    else:
-        return model(*batch)
-
 def execute(args, exec_name, model_name, model, optim_func, input_func, grad_func=None, compare_record=None) :
+    if 'GNN' in model_name:
+        try:
+            import torch_geometric
+        except:
+            print('Installing PyG...')
+            pip_install('torch-scatter')
+            pip_install('torch-sparse')
+            pip_install('torch-cluster')
+            pip_install('torch-spline-conv')
+            pip_install('torch-geometric')
+        def forward_pass(model, batch):
+            if isinstance(batch, torch_geometric.data.Data):
+                return model(batch.x, batch.edge_index, batch.y)
+            elif isinstance(batch, torch_geometric.data.HeteroData):
+                return model(batch.collect('x'), batch.collect('edge_index'), batch[batch.labeled_node_type].y)
+    else:
+        def forward_pass(model, batch):
+            return model(*batch)
+
     optimize_ctx = NullContext()
     if exec_name == 'jit_script':
         torch._C._jit_set_autocast_mode(True)
