@@ -48,7 +48,7 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
         def forward_pass(model, batch):
             return model(*batch)
 
-    optimize_ctx = NullContext()
+    optimize_func = None
     if exec_name == 'jit_script':
         torch._C._jit_set_autocast_mode(True)
     else :
@@ -62,7 +62,7 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
         finally:
             if exec_name == 'aot_autograd':
                 from functorch.compile import memory_efficient_fusion
-    if exec_name == 'torchdynamo':
+    if exec_name == 'inductor' or exec_name == 'nvprims_nvfuser':
         try:
             importlib.import_module('torchdynamo')
         except ModuleNotFoundError:
@@ -70,10 +70,9 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
             pip_install('git+https://github.com/pytorch/torchdynamo.git#egg=torchdynamo')
         finally:
             import torchdynamo
-            from torchdynamo.optimizations.training import aot_autograd_speedup_strategy
             if 'GNN' in model_name:
                 torchdynamo.config.fake_tensor_propagation=False
-            optimize_ctx = torchdynamo.optimize(aot_autograd_speedup_strategy)
+            optimize_func = torchdynamo.optimize(exec_name)
 
             @torchdynamo.skip
             def get_cur_memory():
@@ -98,6 +97,10 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
         model = memory_efficient_fusion(model)
     elif exec_name == 'jit_script':
         model = torch.jit.script(model)
+    elif exec_name == 'inductor':
+        model = optimize_func(model)
+    elif exec_name == 'nvprims_nvfuser':
+        model = optimize_func(model)
 
     batches = input_func(args.warmup_steps+args.steps, args.input_dtype, args.device)
     grads = None
@@ -115,9 +118,7 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
                 start_evt.record()
 
             if not args.inference :
-                with torch.jit.fuser('fuser2'), optimize_ctx:
-                    #with torch.cuda.amp.autocast(enabled=args.amp):
-                    
+                with torch.cuda.amp.autocast(enabled=args.amp):
                     loss = forward_pass(model, batch)
                     if args.warmup_steps > 4 and step == 4:
                         gpu_memory = get_cur_memory()
