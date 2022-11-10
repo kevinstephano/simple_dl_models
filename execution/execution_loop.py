@@ -3,6 +3,7 @@ import importlib
 import subprocess
 import sys
 import torch
+import torch._dynamo
 torch.backends.cuda.matmul.allow_tf32 = True
 
 def pip_install(package):
@@ -63,23 +64,16 @@ def execute(args, exec_name, model_name, model, optim_func, input_func, grad_fun
             if exec_name == 'aot_autograd':
                 from functorch.compile import memory_efficient_fusion
     if exec_name == 'inductor' or exec_name == 'nvprims_nvfuser':
-        try:
-            importlib.import_module('torchdynamo')
-        except ModuleNotFoundError:
-            print("Installing torchdynamo...")
-            pip_install('git+https://github.com/pytorch/torchdynamo.git#egg=torchdynamo')
-        finally:
-            import torchdynamo
-            if 'GNN' in model_name:
-                torchdynamo.config.fake_tensor_propagation=False
-            optimize_func = torchdynamo.optimize(exec_name)
+        if 'GNN' in model_name:
+            torch._dynamo.config.fake_tensor_propagation=False
+        optimize_func = torch._dynamo.optimize(exec_name)
 
-            @torchdynamo.skip
-            def get_cur_memory():
-                torch.cuda.synchronize()
-                stats = torch.cuda.memory_stats()
-                peak_bytes_requirement = stats["allocated_bytes.all.current"]
-                return peak_bytes_requirement / 1.e9
+        @torch._dynamo.skip
+        def get_cur_memory():
+            torch.cuda.synchronize()
+            stats = torch.cuda.memory_stats()
+            peak_bytes_requirement = stats["allocated_bytes.all.current"]
+            return peak_bytes_requirement / 1.e9
     else :
         def get_cur_memory():
             torch.cuda.synchronize()
