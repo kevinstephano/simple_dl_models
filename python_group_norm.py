@@ -30,7 +30,7 @@ def input_func(steps, dtype, device) :
 class TestModule(torch.nn.Module) :
     def __init__(self) :
         super(TestModule, self).__init__()
-        self.gn = PythonGroupNorm(256, 32)
+        self.gn = PythonGroupNorm(128, 32)
 
     def forward(self, inputs) :
         out1 = self.gn(inputs)
